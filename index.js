@@ -4,12 +4,36 @@ const express = require('express');
 
 const server = express();
 
-
 server.use(express.json());
-
 
 const projects = [];
 
+//let requests = 0;
+
+
+//middleware global
+//Crie um middleware global chamado em todas requisições que imprime (console.log) uma contagem de quantas requisições foram feitas na aplicação até então;
+
+server.use((req, res, next) => {
+
+  //requests++;
+  console.count("Número de requisições");
+
+  next();
+
+});
+
+function checkIdExists(req, res, next) {
+
+  const { id } = req.params;
+
+  const projectId = projects.find(p => p.id == id);
+
+  if(!projectId){
+    return res.status(400).json({error: 'ID does not exist'});
+  }
+  return next();
+}
 
 
 //Rota que lista todos projetos e suas tarefas
@@ -20,7 +44,7 @@ server.get('/projects', (req, res) => {
 });
 
 //A rota deve alterar apenas o título do projeto com o id presente nos parâmetros da rota
-server.put('/projects/:id', (req, res) => {
+server.put('/projects/:id', checkIdExists, (req, res) => {
 
   const { id } = req.params;
   const { title } = req.body;
@@ -54,23 +78,25 @@ server.post('/projects', (req, res)=>{
 
 
 // A rota deve deletar o projeto com o id presente nos parâmetros da rota;
-server.delete('/projects/:id', (req, res) => {
+server.delete('/projects/:id', checkIdExists, (req, res) => {
   
   const { id } = req.params;
   
-  const projectIndex = projects.find(p => p.id == id);
+  //não usa o find, pois o find retorna o valor do elemento do array, enquanto o findindex retorna o index
+  const projectIndex = projects.findIndex(p => p.id == id);
   //metodo splice funciona assim -> ele percorre o vetor até o index passado (primeiro parametro) e deleta o tanto de posições informadas no segundo parametro
   
   projects.splice(projectIndex, 1);
   
   //so envia o status da resposta
-  
-  return res.send();
+
+  return res.json(projects);
+  //return res.send();
   
 })
 
 //A rota deve receber um campo title e armazenar uma nova tarefa no array de tarefas de um projeto específico escolhido através do id presente nos parâmetros da rota;
-server.post('/projects/:id/tasks', (req, res)=>{
+server.post('/projects/:id/tasks', checkIdExists, (req, res)=>{
   
   const { id } = req.params;
   const { title } = req.body;
