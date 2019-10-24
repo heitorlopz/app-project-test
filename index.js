@@ -12,7 +12,6 @@ const projects = [];
 
 
 //middleware global
-//Crie um middleware global chamado em todas requisições que imprime (console.log) uma contagem de quantas requisições foram feitas na aplicação até então;
 
 server.use((req, res, next) => {
 
@@ -58,8 +57,6 @@ server.put('/projects/:id', checkIdExists, (req, res) => {
 });
 
 
-// A rota deve receber id e title dentro do corpo e cadastrar um novo projeto dentro de um array no seguinte formato: { id: "1", title: 'Novo projeto', tasks: [] }; 
-//Certifique-se de enviar tanto o ID quanto o título do projeto no formato string com aspas duplas.
 server.post('/projects', (req, res)=>{
 
   const { id, title } = req.body;
